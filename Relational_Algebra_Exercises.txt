@@ -1,0 +1,84 @@
+# Q1
+\project_{pizza}((\select_{gender='female' and age>20} Person) \join Eats)
+
+# Q2
+\project_{name}( (\project_{name}(\select_{gender='female'} Person) \join Eats) \join (\select_{pizzeria='Straw Hat'} Serves) )
+
+# Q3
+\project_{pizzeria}(\select_{price<10}((\select_{name='Amy' or name='Fay'} Eats) \join Serves))
+
+# Q4
+\project_{pizzeria}(\select_{price<10}(( \select_{name1='Amy' and name2='Fay'}(\rename_{name1,pizza} Eats \join \rename_{name2,pizza} Eats)) \join Serves))
+
+# Q5
+\project_{name}(\select_{pizzeria='Dominos'}(Person \join Eats \join Serves)) \diff \project_{name}(\select_{pizzeria='Dominos'}(Person \join Frequents))
+
+
+
+
+
+# Q6 Hard!!!
+(\project_{pizza}Eats \diff \project_{pizza}(\select_{Age>=24}(Person \join Eats))) \union 
+(\project_{pizza}Serves \diff \project_{pizza}(\select_{price>=10}Serves))
+
+
+
+
+
+
+# Q7
+\project_{a2}(\select_{n1<>n2 and a1<=a2}(
+\rename_{n1,a1,g1,n2,a2,g2}((\project_{name}(\select_{pizza='mushroom'}Eats) \join Person) \cross 
+(\project_{name}(\select_{pizza='mushroom'}Eats) \join Person))
+))
+\diff
+\project_{a1}(\select_{n1<>n2 and a1<a2}(
+\rename_{n1,a1,g1,n2,a2,g2}((\project_{name}(\select_{pizza='mushroom'}Eats) \join Person) \cross 
+(\project_{name}(\select_{pizza='mushroom'}Eats) \join Person))
+))
+
+### a better solution found online
+\rename_{age2}(\project_{age}(\project_{name}(\select_{pizza = 'mushroom'}Eats) \join Person))
+\diff
+\project_{age2}(
+\rename_{age2}(\project_{age}(\project_{name}(\select_{pizza = 'mushroom'}Eats) \join Person)) 
+\join_{age2<age1} 
+\rename_{age1}(\project_{age}(\project_{name}(\select_{pizza = 'mushroom'}Eats) \join Person))
+)
+
+
+
+
+
+# Q8
+\project_{pizzeria}Serves
+\diff
+\project_{pizzeria}((\project_{pizza}Serves \diff \project_{pizza}(\select_{age>30}Person \join Eats)) \join Serves)
+
+
+
+
+
+
+
+
+# Q9 Don't know... kind of cheat...
+\project_{pr1}(
+\rename_{pz1,pr1,p1}(\project_{pizza}(\select_{age>30}Person \join Eats) \join Serves) \join_{pz1<pz2 and pr1=pr2}
+\rename_{pz2,pr2,p2}(\project_{pizza}(\select_{age>30}Person \join Eats) \join Serves)
+)
+
+### Answer for Q9 found online
+(\project_{pizzeria}Serves) 
+\diff 
+    (\project_{pizzeria}(
+	    (\project_{pizzeria}Serves)                            ####### Pay attention to these three lines
+        \cross                                                 ####### Imagine every pizzeria servers every qualified pizza
+        (\project_{pizza}(\select_{age>'30'}Person \join Eats))####### the outcome - pizzeria truely serve qualified pizza = pizzeria who don't serve certain type of qualified pizza!!!
+    \diff 
+    (\project_{pizzeria,pizza}((\select_{age>'30'}Person \join Eats) \join Serves))
+	)
+	)
+	
+## It is also known as division in database terminology.
+## http://en.wikipedia.org/wiki/Relational_algebra#Division_.28.C3.B7.29
