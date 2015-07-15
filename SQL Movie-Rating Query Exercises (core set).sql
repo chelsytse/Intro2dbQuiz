@@ -78,4 +78,13 @@ group by mID)
 where year<1980))
 from Movie;
 
+# use case without duplication
+select abs(avg(case when T2.year >= 1980 then T2.stars else null end)-
+avg(case when T2.year < 1980 then T2.stars else null end))
+from (select m.mID, m.year, T1.stars
+from movie m join 
+(select distinct mID, avg(stars) as stars
+from rating
+group by mID) T1
+where m.mID=T1.mID) T2
 
